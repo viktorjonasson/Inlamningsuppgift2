@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class IOUtilTest {
@@ -36,24 +37,77 @@ public class IOUtilTest {
     }
 
     //Testar att datumkonverteraren funkar.
-    String testDateString = "2020-10-12";
-
     @Test
     public final void convStringToDateTest() {
+        String testDateString = "2020-10-12";
+
         LocalDate testDate = IOUtil.convStringToDate(testDateString);
         assertTrue(testDate.isEqual(LocalDate.of(2020, 10, 12)));
         assertFalse(testDate.isEqual(LocalDate.of(2021, 10, 12)));
     }
 
     //Testar funktionen att räkna ut om en kund är aktiv.
-    LocalDate testDateActive = LocalDate.now().minusMonths(11);
-    LocalDate testDateNotActive = LocalDate.now().minusMonths(12);
-
     @Test
     public final void calcActiveMembershipTest() {
+        LocalDate testDateActive = LocalDate.now().minusMonths(11);
+        LocalDate testDateNotActive = LocalDate.now().minusMonths(12);
+
         Boolean resultTrue = IOUtil.calcActiveMembership(testDateActive);
         assertTrue(resultTrue);
         Boolean resultFalse = IOUtil.calcActiveMembership(testDateNotActive);
         assertFalse(resultFalse);
+    }
+
+    //Testar valideringsmetod för lista
+    @Test
+    public final void validateListTest() {
+        List<Client> allClientsEmpty = new ArrayList<>();
+        Throwable exception = assertThrows(NullPointerException.class, () -> IOUtil.validateList(allClientsEmpty));
+
+        List<Client> allClients = IOUtil.readFileToList(testFile);
+        assertDoesNotThrow(() -> IOUtil.validateList(allClients));
+    }
+
+    //Testar valideringsmetod för string
+    @Test
+    public final void validateUserInputTest() {
+        String emptyString = "";
+        Throwable exception = assertThrows(IllegalArgumentException.class, () -> IOUtil.validateUserInput(emptyString));
+
+        String validString = "Viktor Jonasson";
+        assertDoesNotThrow(() -> IOUtil.validateUserInput(validString));
+    }
+
+    //Test att rätt meddelande kommer tillbaka för olika scenarion.
+    @Test
+    public final void checkClientTest() {
+        List<Client> allClients = IOUtil.readFileToList(testFile);
+        String activeClientMessage = "Kunden är en nuvarande medlem.";
+        String idleClientMessage = "Kunden är en före detta kund.";
+        String notAClientMessage = "Personen finns inte i registret och är obehörig.";
+
+        assertTrue(IOUtil.checkClient(allClients, "Alhambra Aromes").equals(activeClientMessage));
+        assertFalse(IOUtil.checkClient(allClients, "Bear Belle").equals(activeClientMessage));
+        assertTrue(IOUtil.checkClient(allClients, "8204021234").equals(idleClientMessage));
+        assertFalse(IOUtil.checkClient(allClients, "7703021234").equals(idleClientMessage));
+        assertTrue(IOUtil.checkClient(allClients, "not in file client").equals(notAClientMessage));
+        assertFalse(IOUtil.checkClient(allClients, "Alhambra Aromes").equals(notAClientMessage));
+    }
+
+    //Test att rätt meddelande kommer tillbaka för olika scenarion.
+    //Kanske överflödig då meddelandet bara åker rakt igenom denna metod utan att den gör något.
+    @Test
+    public final void validateAndCheckClientTest() {
+        List<Client> allClients = IOUtil.readFileToList(testFile);
+        String activeClientMessage = "Kunden är en nuvarande medlem.";
+        String idleClientMessage = "Kunden är en före detta kund.";
+        String notAClientMessage = "Personen finns inte i registret och är obehörig.";
+
+        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "Alhambra Aromes").equals(activeClientMessage));
+        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "Bear Belle").equals(activeClientMessage));
+        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "8204021234").equals(idleClientMessage));
+        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "7703021234").equals(idleClientMessage));
+        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "not in file client").equals(notAClientMessage));
+        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "Alhambra Aromes").equals(notAClientMessage));
     }
 }

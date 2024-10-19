@@ -68,6 +68,49 @@ public class IOUtil {
         }
     }
 
+    public static String validateInputAndCheckClient(List<Client> list, String userInput) {
+        String userMessage = null;
+        try {
+            validateList(list);
+            //validateUserInput(userInput);
+            userMessage = checkClient(list, userInput.trim());
+        }
+        catch (NullPointerException | IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
+            System.out.println(e.getMessage());
+        }
+        catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Ett oväntat fel inträffade: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return userMessage;
+    }
 
+    public static void validateList(List<Client> list) throws NullPointerException {
+        if (list.isEmpty()) {
+            throw new NullPointerException("Listan med kunder är tom.");
+        }
+    }
 
+    public static void validateUserInput(String userInput) throws IllegalArgumentException {
+        if (userInput.trim().isEmpty()){
+            throw new IllegalArgumentException("Sökord är tomt.");
+        }
+    }
+
+    public static String checkClient(List<Client> list, String userInput) {
+        String userMessage = "Personen finns inte i registret och är obehörig.";
+
+        for (Client client : list) {
+            if (userInput.equalsIgnoreCase(client.getName()) || userInput.equals(client.getID())) {
+                if (client.getActiveClient()) {
+                    userMessage = "Kunden är en nuvarande medlem.";
+                } else {
+                    userMessage = "Kunden är en före detta kund.";
+                }
+                break;
+            }
+        }
+        return userMessage;
+    }
 }
