@@ -68,16 +68,6 @@ public class IOUtilTest {
         assertDoesNotThrow(() -> IOUtil.validateList(allClients));
     }
 
-    //Testar valideringsmetod för string
-    @Test
-    public final void validateUserInputTest() {
-        String emptyString = "";
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> IOUtil.validateUserInput(emptyString));
-
-        String validString = "Viktor Jonasson";
-        assertDoesNotThrow(() -> IOUtil.validateUserInput(validString));
-    }
-
     //Test att rätt meddelande kommer tillbaka för olika scenarion.
     @Test
     public final void checkClientTest() {

@@ -72,7 +72,6 @@ public class IOUtil {
         String userMessage = null;
         try {
             validateList(list);
-            //validateUserInput(userInput);
             userMessage = checkClient(list, userInput.trim());
         }
         catch (NullPointerException | IllegalArgumentException e) {
@@ -89,12 +88,6 @@ public class IOUtil {
     public static void validateList(List<Client> list) throws NullPointerException {
         if (list.isEmpty()) {
             throw new NullPointerException("Listan med kunder är tom.");
-        }
-    }
-
-    public static void validateUserInput(String userInput) throws IllegalArgumentException {
-        if (userInput.trim().isEmpty()){
-            throw new IllegalArgumentException("Sökord är tomt.");
         }
     }
 
