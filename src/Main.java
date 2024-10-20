@@ -9,27 +9,27 @@ public class Main {
 
         List<Client> allClients = IOUtil.readFileToList(filePath);
 
-        boolean dialogInput = true;
-
-        while (dialogInput) {
+        while (true) {
             String userInput = JOptionPane.showInputDialog(null,
                     "Skriv in kundens förnamn och efternamn eller personnummer.");
             if (userInput == null) {
-                dialogInput = false;
-                continue;
+                System.exit(0);
             }
-            if (userInput.trim().isEmpty()) {
+            else if (userInput.trim().isEmpty()) {
                 JOptionPane.showMessageDialog(null, "Sökfältet är tomt, försök igen.");
-                continue;
             }
-            JOptionPane.showMessageDialog(null, IOUtil.validateInputAndCheckClient(allClients, userInput));
+            else {
+                JOptionPane.showMessageDialog(null, IOUtil.validateInputAndCheckClient(allClients, userInput));
+
+                int choice = JOptionPane.showConfirmDialog(null,
+                        "Vill du söka efter en annan kund?",
+                        "Sök igen",
+                        JOptionPane.YES_NO_OPTION);
+                if (choice == JOptionPane.NO_OPTION || choice == JOptionPane.CLOSED_OPTION) {
+                    System.exit(0);
+                }
+            }
         }
-
-
-
-//        System.out.println(allClients.toString());
-
-
     }
 
     public static void main(String[] args) {

@@ -2,6 +2,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -100,4 +104,29 @@ public class IOUtilTest {
         assertTrue(IOUtil.validateInputAndCheckClient(allClients, "not in file client").equals(notAClientMessage));
         assertFalse(IOUtil.validateInputAndCheckClient(allClients, "Alhambra Aromes").equals(notAClientMessage));
     }
+
+    //Testar skrivning till fil
+    @Test
+    public final void saveWorkoutSessionToFile() {
+        List<Client> allClients = IOUtil.readFileToList(testFile);
+        String outFilePath = "test/workoutstatisticstest.txt";
+
+        IOUtil.saveWorkoutSessionToFile(outFilePath, allClients.get(0));
+        IOUtil.saveWorkoutSessionToFile(outFilePath, allClients.get(1));
+
+        try(BufferedReader reader = new BufferedReader(new FileReader(outFilePath))){
+            String string = reader.readLine();
+            String date = String.valueOf(LocalDate.now());
+            assertTrue(string.equalsIgnoreCase("Alhambra Aromes, 7703021234, tränade den " + date));
+            string = reader.readLine();
+            assertTrue(string.equalsIgnoreCase("Bear Belle, 8204021234, tränade den " + date));
+
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 }

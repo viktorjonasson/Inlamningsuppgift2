@@ -1,5 +1,9 @@
 import javax.swing.*;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,9 +42,11 @@ public class IOUtil {
         } catch (NoSuchFileException e) {
             JOptionPane.showMessageDialog(null, "Filen med kunddata kunde inte hittas.");
             e.printStackTrace();
+            System.exit(0);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Fel vid inläsning av fil med kunddata.");
             e.printStackTrace();
+            System.exit(0);
         }
 
         return allClients;
@@ -97,6 +103,7 @@ public class IOUtil {
         for (Client client : list) {
             if (userInput.equalsIgnoreCase(client.getName()) || userInput.equals(client.getID())) {
                 if (client.getActiveClient()) {
+                    saveWorkoutSessionToFile("src/workoutstatistics.txt", client);
                     userMessage = "Kunden är en nuvarande medlem.";
                 } else {
                     userMessage = "Kunden är en före detta kund.";
@@ -106,4 +113,32 @@ public class IOUtil {
         }
         return userMessage;
     }
+
+    public static void saveWorkoutSessionToFile(String filePath, Client client) {
+        Path outFilePath = Paths.get(filePath);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFilePath.toFile(), true))) {
+            client.setDateOfWorkout(LocalDate.now());
+            writer.write(client.toString() + "\n");
+        }
+        catch (FileNotFoundException e){
+            JOptionPane.showMessageDialog(null, "PT:ns fil kunde inte hittas.");
+            e.printStackTrace();
+            System.exit(0);
+        }
+        catch (IOException e){
+            JOptionPane.showMessageDialog(null,"Det gick inte att spara till PT:ns fil.");
+            e.printStackTrace();
+            System.exit(0);
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(null,"Något gick fel när kunden skulle sparas till PT:ns fil.");
+            e.printStackTrace();
+            System.exit(0);
+        }
+
+
+
+    }
+
 }
