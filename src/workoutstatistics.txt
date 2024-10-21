@@ -1,1 +1,3 @@
-Client{ID='7703021234', name='Alhambra Aromes', datePaid=2024-07-01, activeClient=true, dateOfWorkout=2024-10-19}Client{ID='7703021234', name='Alhambra Aromes', datePaid=2024-07-01, activeClient=true, dateOfWorkout=2024-10-19}Client{ID='7512166544', name='Greger Ganache', datePaid=2024-03-23, activeClient=true, dateOfWorkout=2024-10-19}Client{ID='7805211234', name='Nahema Ninsson', datePaid=2024-08-04, activeClient=true, dateOfWorkout=2024-10-19}
+Alhambra Aromes, 7703021234, tränade den 2024-10-21
+Alhambra Aromes, 7703021234, tränade den 2024-10-21
+Nahema Ninsson, 7805211234, tränade den 2024-10-21

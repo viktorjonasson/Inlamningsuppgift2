@@ -6,6 +6,7 @@ public class Main {
 
     Main() {
         String filePath = "src/clientdata.txt";
+        String outFilePath = "src/workoutstatistics.txt";
 
         List<Client> allClients = IOUtil.readFileToList(filePath);
 
@@ -19,7 +20,7 @@ public class Main {
                 JOptionPane.showMessageDialog(null, "Sökfältet är tomt, försök igen.");
             }
             else {
-                JOptionPane.showMessageDialog(null, IOUtil.validateInputAndCheckClient(allClients, userInput));
+                JOptionPane.showMessageDialog(null, IOUtil.validateInputAndCheckClient(allClients, userInput, outFilePath));
 
                 int choice = JOptionPane.showConfirmDialog(null,
                         "Vill du söka efter en annan kund?",

@@ -1,11 +1,11 @@
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +17,16 @@ public class IOUtilTest {
     //Kollar så att datan som kommer in i mina objekt och ArrayListan motsvarar vad som förväntas.
     String testFile = "test/clientdatatest.txt";
 
-    //Att listan får rätt mängd objekt.
+    //–>Att listan får rätt mängd objekt.
     @Test
     public final void readFileToListTest() {
         List<Client> allClients = IOUtil.readFileToList(testFile);
+
         assertTrue(allClients.size() == 3);
         assertFalse(allClients.size() == 5);
     }
 
-    //Att datan är rätt och på rätt plats.
+    //–>Att datan är rätt och på rätt plats.
     @Test
     public final void readFileToListEntriesTest() {
         List<Client> allClients = IOUtil.readFileToList(testFile);
@@ -44,8 +45,8 @@ public class IOUtilTest {
     @Test
     public final void convStringToDateTest() {
         String testDateString = "2020-10-12";
-
         LocalDate testDate = IOUtil.convStringToDate(testDateString);
+
         assertTrue(testDate.isEqual(LocalDate.of(2020, 10, 12)));
         assertFalse(testDate.isEqual(LocalDate.of(2021, 10, 12)));
     }
@@ -58,6 +59,7 @@ public class IOUtilTest {
 
         Boolean resultTrue = IOUtil.calcActiveMembership(testDateActive);
         assertTrue(resultTrue);
+
         Boolean resultFalse = IOUtil.calcActiveMembership(testDateNotActive);
         assertFalse(resultFalse);
     }
@@ -73,60 +75,52 @@ public class IOUtilTest {
     }
 
     //Test att rätt meddelande kommer tillbaka för olika scenarion.
-    @Test
-    public final void checkClientTest() {
-        List<Client> allClients = IOUtil.readFileToList(testFile);
-        String activeClientMessage = "Kunden är en nuvarande medlem.";
-        String idleClientMessage = "Kunden är en före detta kund.";
-        String notAClientMessage = "Personen finns inte i registret och är obehörig.";
-
-        assertTrue(IOUtil.checkClient(allClients, "Alhambra Aromes").equals(activeClientMessage));
-        assertFalse(IOUtil.checkClient(allClients, "Bear Belle").equals(activeClientMessage));
-        assertTrue(IOUtil.checkClient(allClients, "8204021234").equals(idleClientMessage));
-        assertFalse(IOUtil.checkClient(allClients, "7703021234").equals(idleClientMessage));
-        assertTrue(IOUtil.checkClient(allClients, "not in file client").equals(notAClientMessage));
-        assertFalse(IOUtil.checkClient(allClients, "Alhambra Aromes").equals(notAClientMessage));
-    }
-
-    //Test att rätt meddelande kommer tillbaka för olika scenarion.
-    //Kanske överflödig då meddelandet bara åker rakt igenom denna metod utan att den gör något.
+    //Testar (1) validateAndCheckClient vilket i sin tur testar (2) CheckClient eftersom
+    // 1 anropar 2 och bara skickar vidare meddelandet som kommer från 2.
     @Test
     public final void validateAndCheckClientTest() {
         List<Client> allClients = IOUtil.readFileToList(testFile);
+        String tempTestFile = ("test/tempfilefortest.txt");
+
         String activeClientMessage = "Kunden är en nuvarande medlem.";
         String idleClientMessage = "Kunden är en före detta kund.";
         String notAClientMessage = "Personen finns inte i registret och är obehörig.";
 
-        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "Alhambra Aromes").equals(activeClientMessage));
-        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "Bear Belle").equals(activeClientMessage));
-        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "8204021234").equals(idleClientMessage));
-        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "7703021234").equals(idleClientMessage));
-        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "not in file client").equals(notAClientMessage));
-        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "Alhambra Aromes").equals(notAClientMessage));
+        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "Alhambra Aromes", tempTestFile).equals(activeClientMessage));
+        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "Bear Belle", tempTestFile).equals(activeClientMessage));
+        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "8204021234", tempTestFile).equals(idleClientMessage));
+        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "7703021234", tempTestFile).equals(idleClientMessage));
+        assertTrue(IOUtil.validateInputAndCheckClient(allClients, "input text not in client file", tempTestFile).equals(notAClientMessage));
+        assertFalse(IOUtil.validateInputAndCheckClient(allClients, "Alhambra Aromes", tempTestFile).equals(notAClientMessage));
+
+        new File(tempTestFile).delete();
     }
 
     //Testar skrivning till fil
     @Test
-    public final void saveWorkoutSessionToFile() {
+    public final void saveWorkoutSessionToFile() throws IOException {
         List<Client> allClients = IOUtil.readFileToList(testFile);
-        String outFilePath = "test/workoutstatisticstest.txt";
+        String outFilePath = ("test/workoutstatisticstest_" + Instant.now() + ".txt");
 
         IOUtil.saveWorkoutSessionToFile(outFilePath, allClients.get(0));
         IOUtil.saveWorkoutSessionToFile(outFilePath, allClients.get(1));
 
-        try(BufferedReader reader = new BufferedReader(new FileReader(outFilePath))){
-            String string = reader.readLine();
+        Path path = Paths.get(outFilePath);
+        assert(Files.exists(path));
+        assert(Files.isWritable(path));
+        assert(Files.isReadable(path));
+
+        try(BufferedReader reader = new BufferedReader(new FileReader(outFilePath))) {
             String date = String.valueOf(LocalDate.now());
+
+            String string = reader.readLine();
             assertTrue(string.equalsIgnoreCase("Alhambra Aromes, 7703021234, tränade den " + date));
+
             string = reader.readLine();
             assertTrue(string.equalsIgnoreCase("Bear Belle, 8204021234, tränade den " + date));
 
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-
     }
-
 }

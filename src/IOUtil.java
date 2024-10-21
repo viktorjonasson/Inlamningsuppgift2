@@ -3,7 +3,6 @@ import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,7 +27,6 @@ public class IOUtil {
 
         try (Scanner fileScanner = new Scanner(inFilePath)) {
             while (fileScanner.hasNext()) {
-                //Dela upp, läs in, spara till objekt:
                 firstLine = fileScanner.nextLine();
                 firstLineData = firstLine.split(",");
                 if (fileScanner.hasNext()) {
@@ -48,9 +46,7 @@ public class IOUtil {
             e.printStackTrace();
             System.exit(0);
         }
-
         return allClients;
-
     }
 
     public static LocalDate convStringToDate(String dateString) {
@@ -59,6 +55,7 @@ public class IOUtil {
             date = LocalDate.parse(dateString);
         }
         catch (DateTimeParseException e) {
+            JOptionPane.showMessageDialog(null, "Kunde inte läsa in betaldatum för en eller flera kunder.");
             e.printStackTrace();
         }
         return date;
@@ -74,11 +71,11 @@ public class IOUtil {
         }
     }
 
-    public static String validateInputAndCheckClient(List<Client> list, String userInput) {
+    public static String validateInputAndCheckClient(List<Client> list, String userInput, String outFile) {
         String userMessage = null;
         try {
             validateList(list);
-            userMessage = checkClient(list, userInput.trim());
+            userMessage = checkClient(list, userInput.trim(), outFile);
         }
         catch (NullPointerException | IllegalArgumentException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
@@ -97,13 +94,13 @@ public class IOUtil {
         }
     }
 
-    public static String checkClient(List<Client> list, String userInput) {
+    public static String checkClient(List<Client> list, String userInput, String outFile) {
         String userMessage = "Personen finns inte i registret och är obehörig.";
 
         for (Client client : list) {
             if (userInput.equalsIgnoreCase(client.getName()) || userInput.equals(client.getID())) {
                 if (client.getActiveClient()) {
-                    saveWorkoutSessionToFile("src/workoutstatistics.txt", client);
+                    saveWorkoutSessionToFile(outFile, client);
                     userMessage = "Kunden är en nuvarande medlem.";
                 } else {
                     userMessage = "Kunden är en före detta kund.";
@@ -136,9 +133,5 @@ public class IOUtil {
             e.printStackTrace();
             System.exit(0);
         }
-
-
-
     }
-
 }

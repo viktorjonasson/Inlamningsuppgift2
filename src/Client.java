@@ -5,7 +5,7 @@ public class Client {
     private String ID;
     private String name;
     private LocalDate datePaid;
-    private Boolean activeClient;
+    private Boolean activeClient = false;
     private LocalDate dateOfWorkout;
 
     public Client(String ID, String name, LocalDate datePaid, Boolean activeClient) {
